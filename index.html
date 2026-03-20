@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZETYX OFFICIAL TEST</title>
+    <title>ZETYX MODERN EDITION</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://db.onlinewebfonts.com/c/b031b6714d642b588c876f2b0907d353?family=Minecrafter" rel="stylesheet">
     <style>
@@ -183,8 +183,10 @@
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
+    // --- ВОТ ОН, СЕРВЕР УРЛ ---
+    const SERVER_URL = "http://144.31.223.15:8000"; 
+    
     const tg = window.Telegram.WebApp;
-    const SERVER_URL = "http://ТВОЙ_IP:8000"; 
     const uId = tg.initDataUnsafe.user?.id || 0;
 
     const aCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -203,17 +205,24 @@
     let bal = 0.0;
     const multData = { 8: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5], 12: [10, 5, 2, 1.2, 0.5, 0.2, 0.1, 0.2, 0.5, 1.2, 2, 5, 10], 16: [50, 20, 10, 5, 2, 1.2, 0.5, 0.2, 0.1, 0.2, 0.5, 1.2, 2, 5, 10, 20, 50] };
 
+    // ЕДИНСТВЕННАЯ НОВАЯ ФУНКЦИЯ ДЛЯ СИНХРОНИЗАЦИИ БАЛАНСА
     async function fetchBal() {
         if(!uId) return;
-        try { const r = await fetch(`${SERVER_URL}/get_balance/${uId}`); const d = await r.json(); bal = d.balance; updBal(); } catch(e) {}
+        try { 
+            const r = await fetch(`${SERVER_URL}/get_balance/${uId}`); 
+            const d = await r.json(); 
+            bal = d.balance; 
+            updBal(); 
+        } catch(e) {}
     }
+
     function openDep() { document.getElementById('depModal').style.display='flex'; }
     function closeDep() { document.getElementById('depModal').style.display='none'; }
     function confirmDep() { let a = document.getElementById('depAmount').value; tg.sendData("pay:" + a); tg.close(); }
     function go(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='tower') resetTower(); if(id==='mines') resetMines(); if(id==='plinko') initPlinko(); }
     function updBal() { document.getElementById('balance').innerText = bal.toFixed(2); }
 
-    // ИГРЫ
+    // --- ТВОИ ОРИГИНАЛЬНЫЕ ИГРЫ (КАК В САМОМ ПЕРВОМ КОДЕ) ---
     function updDice() { let v = document.getElementById('dice_r').value; document.getElementById('dice_f').style.width = v + '%'; document.getElementById('dice_m').innerText = (98/v).toFixed(2) + 'x'; document.getElementById('dice_c').innerText = v + '%'; }
     function playDice() { let b = +document.getElementById('dice_bet').value, t = +document.getElementById('dice_r').value; if(b > bal || b <= 0) return; bal -= b; let r = (Math.random()*100).toFixed(2); document.getElementById('dice_res_text').innerText = r; document.getElementById('dice_stick').style.display = 'block'; document.getElementById('dice_stick').style.left = r + '%'; if(+r <= t) { bal += b * (98/t); playWin(); } else playLoss(); updBal(); }
 
@@ -224,14 +233,14 @@
     function stepTower(r, c) { if(!tA || r !== tL) return; if(Math.random()>0.3){ playTick(); document.getElementById('tr'+r).children[c].style.background='var(--win)'; tL++; if(tL<8) document.getElementById('tr'+tL).classList.add('on'); document.getElementById('t_profit').innerText = (150*tL).toFixed(2); } else { playLoss(); resetTower(); }}
     function cashTower() { bal += parseFloat(document.getElementById('t_profit').innerText); updBal(); resetTower(); }
 
-    function resetMines() { const g=document.getElementById('m_grid'); g.innerHTML=''; for(let i=0; i<25; i++) { let t=document.createElement('div'); t.className='m-box'; t.onclick=()=>stepMines(i); g.appendChild(t); } }
+    let mA=false, mGr=[];
+    function resetMines() { const g=document.getElementById('m_grid'); g.innerHTML=''; for(let i=0; i<25; i++) { let t=document.createElement('div'); t.className='m-box'; t.onclick=()=>stepMines(i); g.appendChild(t); } mA=false; document.getElementById('m_start').style.display='block'; document.getElementById('m_cash').style.display='none'; }
     function startMines() { let b = +document.getElementById('mines_bet').value; if(b > bal) return; bal-=b; updBal(); mA=true; mGr=Array(25).fill(0).map(()=>Math.random()<0.2?1:0); document.getElementById('m_start').style.display='none'; document.getElementById('m_cash').style.display='block'; }
     function stepMines(i) { if(!mA) return; if(mGr[i]===0){ playTick(); document.getElementById('m_grid').children[i].style.background='var(--win)'; } else { playLoss(); resetMines(); } }
     function cashMines() { bal+=100; updBal(); resetMines(); }
 
     function playLimbo() { let b = +document.getElementById('limbo_bet').value; if(b > bal) return; bal -= b; let r = (Math.random()*5).toFixed(2); document.getElementById('limbo_res_text').innerText = r+'x'; if(r > 2) { bal+=b*2; playWin(); } else playLoss(); updBal(); }
 
-    // --- PLINKO FULL ---
     let pR=8, pBalls=[]; const pCan=document.getElementById('p_can'), pCtx=pCan.getContext('2d');
     function setPR(r) { pR=r; document.querySelectorAll('#plinko .opt').forEach(b=>b.classList.remove('selected')); document.getElementById('pr'+r).classList.add('selected'); initPlinko(); }
     function initPlinko() { 
@@ -255,4 +264,5 @@
     tg.expand(); fetchBal(); setInterval(fetchBal, 5000); updDice();
 </script>
 </body>
-</html>
+    </html>
+    
