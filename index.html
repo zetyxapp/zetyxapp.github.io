@@ -31,7 +31,6 @@
         .buy-btn { background: linear-gradient(135deg, #ff9500, #ff5e00); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 15px; font-weight: 800; margin-bottom: 12px; font-size: 16px; cursor: pointer; }
         .main-btn { width: 100%; height: 65px; border-radius: 20px; border: none; background: linear-gradient(180deg, #007aff, #0056b3); display: flex; justify-content: center; align-items: center; cursor: pointer; }
 
-        /* ИНФО СТРАНИЦА */
         #rules-page { display: none; position: fixed; inset: 0; background: #fff; z-index: 200; padding: 20px; overflow-y: auto; }
         .rules-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .info-section { margin-bottom: 25px; }
@@ -90,46 +89,7 @@
         <h2 style="margin:0; font-weight: 900;">ОБУЧЕНИЕ</h2>
         <div onclick="openRules(false)" style="color:var(--blue); font-weight:900; cursor:pointer; background: #eef6ff; padding: 5px 15px; border-radius: 10px;">ЗАКРЫТЬ</div>
     </div>
-
-    <div class="info-section">
-        <div class="info-title">🚀 Как играть?</div>
-        <div class="step-item">
-            <div class="step-num">1</div>
-            <div class="info-text" style="margin:0">Если баланс пуст — <b>пополните баланс написав /dep</b> боту.</div>
-        </div>
-        <div class="step-item">
-            <div class="step-num">2</div>
-            <div class="info-text" style="margin:0">Жми синюю кнопку «Play». Барабаны закрутятся, выдавая случайные символы.</div>
-        </div>
-        <div class="step-item">
-            <div class="step-num">3</div>
-            <div class="info-text" style="margin:0">Если 3+ одинаковых символа встали в ряд слева направо — ты выиграл!</div>
-        </div>
-    </div>
-
-    <div class="info-section">
-        <div class="info-title">💎 Ценность символов</div>
-        <div style="font-size: 12px; color: #8e8e93; margin-bottom: 10px;">(Множитель выигрыша за 5 символов в ряд)</div>
-        <div id="rules-list"></div>
-    </div>
-
-    <div class="info-section">
-        <div class="info-title">🔥 Спецсимволы</div>
-        <div class="rule-card" style="background: #fff9e6; border-color: var(--gold);">
-            <div class="rule-emoji">💰</div>
-            <div class="rule-info">
-                <div class="rule-name">SCATTER (Бонус)</div>
-                <div class="rule-payout">3 символа запускают 13 Бесплатных Игр.</div>
-            </div>
-        </div>
-        <div class="rule-card">
-            <div class="rule-emoji">🥈</div>
-            <div class="rule-info">
-                <div class="rule-name">WILD (Джокер)</div>
-                <div class="rule-payout">Заменяет любой символ (кроме 💰).</div>
-            </div>
-        </div>
-    </div>
+    <div id="rules-list"></div>
 </div>
 
 <div class="modal" id="modal-confirm">
@@ -146,12 +106,14 @@
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
 <script>
+    // --- НАСТРОЙКИ СВЯЗИ ---
     const VDS_IP = "144.31.223.15";
+    const PROXY = "https://corsproxy.io/?"; 
+    
     let tg = window.Telegram.WebApp;
-    let userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+    let userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "test_user";
     let balance = 0, bet = 5000, isSpinning = false, isAuto = false, isTurbo = false;
 
-    // ТВОИ ИКСЫ И ВЕСА (v / 5 = множитель)
     const SYMS_DATA = [
         { s: '🍭', v: 10,  w: 100 }, { s: '🍓', v: 10,  w: 100 }, { s: '🍔', v: 10,  w: 100 },
         { s: '🐯', v: 20,  w: 60 },  { s: '🦍', v: 30,  w: 50 },  { s: '🦋', v: 40,  w: 40 },
@@ -164,43 +126,41 @@
         fetchBalance();
         initGrid();
         updateRulesList();
-        particlesJS("particles-js", { "particles": { "number": { "value": 30 }, "opacity": { "value": 0.1 }, "move": { "speed": 1 } } });
+        setInterval(fetchBalance, 4000); // Проверяем депозит каждые 4 сек
+        if (window.particlesJS) {
+            particlesJS("particles-js", { "particles": { "number": { "value": 30 }, "opacity": { "value": 0.1 }, "move": { "speed": 1 } } });
+        }
     };
 
     function updateRulesList() {
         const list = document.getElementById('rules-list');
+        if (!list) return;
         list.innerHTML = '';
-        // Выводим от дорогих к дешевым
         [...SYMS_DATA].reverse().forEach(item => {
-            const multiplier = item.v / 5; 
-            list.innerHTML += `
-                <div class="rule-card">
-                    <div class="rule-emoji">${item.s}</div>
-                    <div class="rule-info">
-                        <div class="rule-name">Символ ${item.s}</div>
-                        <div class="rule-payout">Выплата: x${multiplier}</div>
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="rule-card"><div class="rule-emoji">${item.s}</div><div class="rule-info"><div class="rule-name">Символ ${item.s}</div><div class="rule-payout">Выплата: x${item.v/5}</div></div></div>`;
         });
     }
 
     async function fetchBalance() {
-        if (!userId) return;
+        if (isSpinning) return;
         try {
-            const res = await fetch(`http://${VDS_IP}:8080/get_balance?user_id=${userId}`);
+            const url = `http://${VDS_IP}:8080/get_balance?user_id=${userId}`;
+            const res = await fetch(PROXY + encodeURIComponent(url));
             const data = await res.json();
             balance = data.balance;
             updateUI();
-        } catch (e) { console.error("Ошибка VDS"); }
+        } catch (e) { console.log("Поиск связи..."); }
     }
 
     async function syncBalance() {
-        if (!userId) return;
-        fetch(`http://${VDS_IP}:8080/update_balance`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, balance: balance })
-        });
+        try {
+            const url = `http://${VDS_IP}:8080/update_balance`;
+            await fetch(PROXY + encodeURIComponent(url), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: String(userId), balance: balance })
+            });
+        } catch (e) { console.log("Ошибка БД"); }
     }
 
     function initGrid() {
@@ -209,8 +169,8 @@
     }
 
     function getRandomSymbol() {
-        let totalWeight = SYMS_DATA.reduce((acc, curr) => acc + curr.w, 0);
-        let random = Math.random() * totalWeight;
+        let total = SYMS_DATA.reduce((acc, curr) => acc + curr.w, 0);
+        let random = Math.random() * total;
         for (let sym of SYMS_DATA) {
             if (random < sym.w) return sym.s;
             random -= sym.w;
@@ -225,32 +185,27 @@
         document.getElementById('conf-price').innerText = "$" + (bet * 100).toLocaleString();
     }
 
-    function handleSpin() { 
-        if(!isSpinning && balance >= bet) startSpin(); 
-        else isAuto = false; 
-    }
+    function handleSpin() { if(!isSpinning && balance >= bet) startSpin(); else isAuto = false; }
 
     async function startSpin() {
         isSpinning = true; updateBtn();
-        balance -= bet; syncBalance(); updateUI();
+        balance -= bet; updateUI(); await syncBalance();
         document.getElementById('win-text').innerText = "КРУТИМ...";
         const cells = document.querySelectorAll('.cell');
         cells.forEach(c => { c.classList.remove('win-pulse'); c.classList.add('spinning'); });
-        await new Promise(r => setTimeout(r, isTurbo ? 300 : 1000));
+        await new Promise(r => setTimeout(r, isTurbo ? 400 : 1200));
         cells.forEach(c => { c.classList.remove('spinning'); c.innerText = getRandomSymbol(); });
         
-        // Вероятность выигрыша 20% для примера
         if(Math.random() > 0.8) {
-            let win = bet * 2.5;
+            let win = bet * (Math.floor(Math.random() * 10) + 2);
             balance += win;
             document.getElementById('win-text').innerText = "ВЫИГРЫШ $" + win.toLocaleString();
-            cells[0].classList.add('win-pulse'); cells[1].classList.add('win-pulse');
-        } else {
-            document.getElementById('win-text').innerText = " ";
-        }
-        syncBalance(); updateUI();
+            for(let i=0; i<3; i++) cells[Math.floor(Math.random()*20)].classList.add('win-pulse');
+        } else { document.getElementById('win-text').innerText = " "; }
+
+        await syncBalance(); updateUI();
         isSpinning = false; updateBtn();
-        if(isAuto) setTimeout(startSpin, 600);
+        if(isAuto) setTimeout(startSpin, 700);
     }
 
     function updateBtn() {
@@ -266,7 +221,7 @@
     function openRules(v) { document.getElementById('rules-page').style.display = v ? 'block' : 'none'; }
     function askBuyBonus() { if(balance >= bet*100) document.getElementById('modal-confirm').style.display='flex'; }
     function closeConfirm() { document.getElementById('modal-confirm').style.display='none'; }
-    function confirmBuy() { balance -= bet*100; syncBalance(); closeConfirm(); updateUI(); }
+    function confirmBuy() { balance -= bet*100; syncBalance(); closeConfirm(); updateUI(); handleSpin(); }
 </script>
 </body>
 </html>
