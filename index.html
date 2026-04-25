@@ -3,76 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZETYX MODERN EDITION</title>
+    <title>ZETYX LEGACY</title>
     <link href="https://db.onlinewebfonts.com/c/b031b6714d642b588c876f2b0907d353?family=Minecrafter" rel="stylesheet">
     <style>
         :root { --bg: #050508; --panel: #111116; --accent: #ffffff; --win: #00e676; --loss: #ff1744; --mc: 'Minecrafter', sans-serif; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; min-height: 100vh; overflow-x: hidden; }
-
         #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-
         .header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-family: var(--mc); font-size: 18px; color: #fff; letter-spacing: 2px; cursor: pointer; transition: 0.2s; }
-        .logo:active { opacity: 0.7; }
+        .logo { font-family: var(--mc); font-size: 18px; color: #fff; letter-spacing: 2px; cursor: pointer; }
         .bal { border: 1px solid #fff; padding: 5px 12px; border-radius: 4px; font-weight: 900; background: #000; font-family: var(--mc); font-size: 12px; }
-
         .view { display: none; padding: 15px; max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
         .active { display: block !important; }
-
         .hero { text-align: center; margin: 40px 0; }
-        .hero h1 { font-family: var(--mc); font-size: 28px; margin-bottom: 10px; text-transform: uppercase; }
-        .hero p { color: #555; font-size: 10px; letter-spacing: 2px; }
-
+        .hero h1 { font-family: var(--mc); font-size: 28px; margin-bottom: 10px; }
         .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { 
-            background: rgba(17, 17, 22, 0.8); 
-            border: 1px solid rgba(255,255,255,0.05); 
-            padding: 30px 10px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: 0.3s;
-            backdrop-filter: blur(5px);
-        }
+        .card { background: rgba(17, 17, 22, 0.8); border: 1px solid rgba(255,255,255,0.05); padding: 30px 10px; text-align: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); }
         .card:hover { border-color: #fff; transform: translateY(-5px); }
-        .card i { font-size: 30px; display: block; margin-bottom: 15px; filter: brightness(2); }
+        .card i { font-size: 30px; display: block; margin-bottom: 15px; }
         .card span { font-family: var(--mc); font-size: 10px; letter-spacing: 1px; color: #aaa; }
-
         .game-box { background: var(--panel); border: 1px solid #222; overflow: hidden; display: flex; flex-direction: column; }
         .ui { padding: 20px; background: #0c0c10; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 12px; }
         .play-area { padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 250px; justify-content: center; position: relative; }
-
         .label { font-size: 10px; color: #666; font-weight: 900; margin-bottom: 4px; display: block; }
-        input[type="number"], input[type="text"] { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 4px; font-weight: 900; outline: none; }
-        
+        input[type="number"] { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 4px; font-weight: 900; outline: none; }
         .btn { width: 100%; padding: 16px; background: #fff; border: none; border-radius: 4px; color: #000; font-family: var(--mc); font-size: 14px; cursor: pointer; }
-        .btn:active { transform: translateY(2px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-win { background: var(--win) !important; color: #000; }
-
         .row { display: flex; gap: 6px; }
         .opt { flex: 1; padding: 8px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 9px; font-family: var(--mc); cursor: pointer; text-align: center; }
         .opt.selected { border-color: #fff; background: rgba(255,255,255,0.1); }
-
         .back { font-family: var(--mc); color: #444; font-size: 10px; margin-bottom: 15px; display: inline-block; cursor: pointer; }
-
+        
+        /* DICE SPECIFIC */
         .slider-cont { width: 100%; max-width: 300px; height: 4px; background: #222; position: relative; margin: 30px 0; }
         .slider-fill { height: 100%; background: #444; width: 50%; }
-        .dice-stick { position: absolute; top: -12px; width: 2px; height: 30px; background: #fff; z-index: 100; display: none; box-shadow: 0 0 10px #fff; }
+        .dice-stick { position: absolute; top: -12px; width: 2px; height: 30px; background: #fff; z-index: 100; display: none; }
+        input[type=range] { -webkit-appearance: none; position: absolute; top: -12px; left: 0; width: 100%; height: 30px; background: transparent; z-index: 120; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #fff; border: 4px solid #000; }
 
-        input[type=range] { -webkit-appearance: none; position: absolute; top: -12px; left: 0; width: 100%; height: 30px; background: transparent; z-index: 120; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #ffffff; cursor: pointer; border: 4px solid #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
-
+        /* TOWER & MINES */
         .t-grid { display: flex; flex-direction: column-reverse; gap: 5px; width: 220px; }
         .t-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; opacity: 0.2; }
         .t-row.on { opacity: 1; }
         .tile, .m-box { aspect-ratio: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
         .m-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 260px; }
-        .p-mult-container { display: flex; gap: 2px; width: 100%; margin-top: -10px; }
-        .pm { flex: 1; background: #fff; color: #000; font-size: 8px; font-weight: 900; text-align: center; padding: 8px 0; border-radius: 2px; }
-        
-        #r_can { border-radius: 50%; border: 5px solid #222; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+        /* ROULETTE */
+        #r_can { border-radius: 50%; border: 5px solid #222; }
         .r-pointer { position: absolute; top: 15px; width: 4px; height: 30px; background: #fff; z-index: 101; box-shadow: 0 0 10px #fff; }
+
+        /* PLINKO */
+        .p-mult-container { display: flex; gap: 2px; width: 100%; margin-top: 10px; justify-content: center; }
+        .pm { flex: 1; background: #ff1744; color: #fff; font-size: 7px; font-weight: 900; text-align: center; padding: 7px 0; border-radius: 2px; transition: 0.2s; }
     </style>
 </head>
 <body>
@@ -80,14 +63,11 @@
 <div id="particles-js"></div>
 <div class="header">
     <div class="logo" onclick="go('lobby')">ZETYX</div>
-    <div class="bal"><span id="balance">1000000.00</span> ₽</div>
+    <div class="bal"><span id="balance">10000.00</span> ₽</div>
 </div>
 
 <div id="lobby" class="view active">
-    <div class="hero">
-        <h1>ZETYX BETA</h1>
-        <p>STRICT STYLE • ANTI-MARTINGALE SYSTEM</p>
-    </div>
+    <div class="hero"><h1>ZETYX</h1></div>
     <div class="grid-main">
         <div class="card" onclick="go('dice')"><i>🎲</i><span>DICE</span></div>
         <div class="card" onclick="go('roulette')"><i>🎡</i><span>ROULETTE</span></div>
@@ -140,11 +120,7 @@
             <div id="r_status" style="font-size:10px; color:#555; text-align:center;">ВЫБЕРИТЕ СТАВКУ</div>
             <button class="btn" id="r_btn" onclick="playRoulette()">КРУТИТЬ</button>
         </div>
-        <div class="play-area">
-            <div class="r-pointer"></div>
-            <canvas id="r_can" width="220" height="220"></canvas>
-            <div id="r_res" style="font-family:var(--mc); font-size:24px; margin-top:15px; text-shadow: 0 0 10px rgba(255,255,255,0.5);">?</div>
-        </div>
+        <div class="play-area"><div class="r-pointer"></div><canvas id="r_can" width="220" height="220"></canvas><div id="r_res" style="font-family:var(--mc); font-size:24px; margin-top:15px;">?</div></div>
     </div>
 </div>
 
@@ -154,7 +130,8 @@
         <div class="ui">
             <input type="number" id="tower_bet" value="100">
             <div class="row"><button class="opt selected" id="tm1" onclick="setTM(1)">1 МИНА</button><button class="opt" id="tm2" onclick="setTM(2)">2 МИНЫ</button><button class="opt" id="tm3" onclick="setTM(3)">3 МИНЫ</button></div>
-            <button class="btn" id="t_start" onclick="startTower()">ИГРАТЬ</button><button class="btn btn-win" id="t_cash" onclick="cashTower()" style="display:none">ЗАБРАТЬ <span id="t_profit">0</span></button>
+            <button class="btn" id="t_start" onclick="startTower()">ИГРАТЬ</button>
+            <button class="btn btn-win" id="t_cash" onclick="cashTower()" style="display:none">ЗАБРАТЬ <span id="t_profit">0</span></button>
         </div>
         <div class="play-area"><div class="t-grid" id="t_grid"></div></div>
     </div>
@@ -163,7 +140,12 @@
 <div id="mines" class="view">
     <span class="back" onclick="go('lobby')">← НАЗАД</span>
     <div class="game-box">
-        <div class="ui"><input type="number" id="mines_bet" value="100"><input type="number" id="mines_cnt" value="3" min="1" max="24"><button class="btn" id="m_start" onclick="startMines()">ИГРАТЬ</button><button class="btn btn-win" id="m_cash" onclick="cashMines()" style="display:none">ЗАБРАТЬ <span id="m_profit">0</span></button></div>
+        <div class="ui" id="m_ui">
+            <input type="number" id="mines_bet" value="100">
+            <input type="number" id="mines_cnt" value="3" min="1" max="24">
+            <button class="btn" id="m_start" onclick="startMines()">ИГРАТЬ</button>
+            <button class="btn btn-win" id="m_cash" onclick="cashMines()" style="display:none">ЗАБРАТЬ <span id="m_profit">0</span></button>
+        </div>
         <div class="play-area"><div class="m-grid" id="m_grid"></div></div>
     </div>
 </div>
@@ -171,7 +153,11 @@
 <div id="limbo" class="view">
     <span class="back" onclick="go('lobby')">← НАЗАД</span>
     <div class="game-box">
-        <div class="ui"><input type="number" id="limbo_bet" value="100"><input type="number" id="limbo_target" value="2.0" step="0.1"><button class="btn" onclick="playLimbo()">ИГРАТЬ</button></div>
+        <div class="ui">
+            <input type="number" id="limbo_bet" value="100">
+            <input type="number" id="limbo_target" value="2.0" step="0.1">
+            <button class="btn" onclick="playLimbo()">ИГРАТЬ</button>
+        </div>
         <div class="play-area"><div id="limbo_res_text" style="font-family:var(--mc); font-size:30px;">1.00x</div></div>
     </div>
 </div>
@@ -179,184 +165,133 @@
 <div id="plinko" class="view">
     <span class="back" onclick="go('lobby')">← НАЗАД</span>
     <div class="game-box">
-        <div class="ui" id="p_ui"><input type="number" id="plinko_bet" value="100"><div class="row" id="p_opts"><button class="opt selected" id="pr8" onclick="setPR(8)">8 РЯДОВ</button><button class="opt" id="pr12" onclick="setPR(12)">12 РЯДОВ</button><button class="opt" id="pr16" onclick="setPR(16)">16 РЯДОВ</button></div><button class="btn" id="p_btn" onclick="playPlinko()">ИГРАТЬ</button></div>
-        <div class="play-area"><canvas id="p_can" width="320" height="280"></canvas><div id="p_mults" class="p-mult-container"></div></div>
+        <div class="ui" id="p_ui">
+            <input type="number" id="plinko_bet" value="100">
+            <div class="row" id="p_rows_selector">
+                <button class="opt selected" id="pr8" onclick="setPR(8)">8 РЯДОВ</button>
+                <button class="opt" id="pr12" onclick="setPR(12)">12 РЯДОВ</button>
+                <button class="opt" id="pr16" onclick="setPR(16)">16 РЯДОВ</button>
+            </div>
+            <button class="btn" onclick="playPlinko()">ИГРАТЬ</button>
+        </div>
+        <div class="play-area" style="padding: 10px 0;">
+            <canvas id="p_can" width="340" height="320"></canvas>
+            <div id="p_mults" class="p-mult-container"></div>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
-    let bal = 1000000.0, winCount = 0, lastBet = 0;
+    let bal = 10000.0;
+    let pActiveBalls = 0;
 
     function go(id) { 
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); 
         document.getElementById(id).classList.add('active'); 
-        if(id==='tower') resetTower(); 
-        if(id==='mines') resetMines(); 
-        if(id==='plinko') initPlinko();
-        if(id==='roulette') drawRoulette();
+        if(id==='tower') resetTower(); if(id==='mines') resetMines(); 
+        if(id==='plinko') initPlinko(); if(id==='roulette') drawRoulette();
     }
     function updBal() { document.getElementById('balance').innerText = bal.toFixed(2); }
 
-    function getRiggedRandom(chance, currentBet) {
-        let isMartingale = currentBet > lastBet * 1.5 && lastBet > 0;
-        let rigFactor = 1.0;
-        if(winCount > 2) rigFactor -= 0.15;
-        if(isMartingale) rigFactor -= 0.25;
-        return Math.random() > (1 - rigFactor) ? Math.random() * 100 : 101;
-    }
-
     // DICE
     function updDice() { let v = document.getElementById('dice_r').value; document.getElementById('dice_f').style.width = v + '%'; document.getElementById('dice_m').innerText = (98/v).toFixed(2) + 'x'; document.getElementById('dice_c').innerText = v + '%'; document.getElementById('dice_stick').style.display = 'none'; }
-    function playDice() {
-        let b = +document.getElementById('dice_bet').value, t = +document.getElementById('dice_r').value; 
-        if(b > bal || b <= 0) return; bal -= b;
-        let r = getRiggedRandom(t, b);
-        r = Math.min(99.99, Math.max(0.01, r)).toFixed(2);
-        document.getElementById('dice_res_text').innerText = r; document.getElementById('dice_stick').style.display = 'block'; document.getElementById('dice_stick').style.left = r + '%';
-        if(+r <= t) { bal += b * (98/t); document.getElementById('dice_res_text').style.color = 'var(--win)'; winCount++; }
-        else { document.getElementById('dice_res_text').style.color = 'var(--loss)'; winCount = 0; }
-        lastBet = b; updBal();
-    }
+    function playDice() { let b = +document.getElementById('dice_bet').value, t = +document.getElementById('dice_r').value; if(b > bal || b <= 0) return; bal -= b; let r = (Math.random() * 100).toFixed(2); document.getElementById('dice_res_text').innerText = r; document.getElementById('dice_stick').style.display = 'block'; document.getElementById('dice_stick').style.left = r + '%'; if(+r <= t) { bal += b * (98/t); document.getElementById('dice_res_text').style.color = 'var(--win)'; } else { document.getElementById('dice_res_text').style.color = 'var(--loss)'; } updBal(); }
 
     // ROULETTE
     let rType = null, rRotation = 0, isSpinning = false;
     const rNums = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
     const rColors = rNums.map((n, i) => n === 0 ? '#00e676' : (i % 2 === 0 ? '#1a1a1a' : '#ff1744'));
-
-    function setRType(t) { 
-        if(isSpinning) return;
-        rType = t; 
-        document.querySelectorAll('#roulette .opt').forEach(o => o.classList.remove('selected'));
-        document.getElementById('rb_'+t).classList.add('selected');
-        document.getElementById('r_status').innerText = "СТАВКА: " + t.toUpperCase();
-        document.getElementById('r_status').style.color = "#fff";
-    }
-
-    function drawRoulette() {
-        const ctx = document.getElementById('r_can').getContext('2d');
-        const cx = 110, cy = 110, rad = 100;
-        ctx.clearRect(0,0,220,220);
-        rNums.forEach((n, i) => {
-            const ang = (Math.PI * 2) / rNums.length;
-            ctx.beginPath(); ctx.fillStyle = rColors[i]; ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, rad, i * ang + rRotation, (i + 1) * ang + rRotation); ctx.fill();
-            ctx.save(); ctx.translate(cx, cy); ctx.rotate(i * ang + ang/2 + rRotation);
-            ctx.fillStyle = "#fff"; ctx.font = "bold 8px Arial"; ctx.fillText(n, rad - 15, 5); ctx.restore();
-        });
-    }
-
-    function playRoulette() {
-        if(isSpinning || !rType) return;
-        let b = +document.getElementById('roulette_bet').value;
-        if(b > bal || b <= 0) return;
-        
-        // Блокируем UI
-        isSpinning = true;
-        bal -= b; updBal();
-        document.getElementById('r_btn').disabled = true;
-        document.querySelectorAll('#r_ui input, #r_ui button').forEach(el => el.style.pointerEvents = 'none');
-
-        let extraSpins = 6 + Math.random() * 5;
-        let duration = 4000; let start = null; let startRot = rRotation;
-        
-        function anim(now) {
-            if(!start) start = now;
-            let prog = (now - start) / duration;
-            if(prog < 1) {
-                rRotation = startRot + (extraSpins * Math.PI * 2) * (1 - Math.pow(1 - prog, 4));
-                drawRoulette(); requestAnimationFrame(anim);
-            } else { 
-                isSpinning = false; 
-                document.getElementById('r_btn').disabled = false;
-                document.querySelectorAll('#r_ui input, #r_ui button').forEach(el => el.style.pointerEvents = 'auto');
-                finalizeRoulette(); 
-            }
-        }
-        requestAnimationFrame(anim);
-    }
-
-    function finalizeRoulette() {
-        const section = (Math.PI * 2) / rNums.length;
-        const normalizedRot = (rRotation % (Math.PI * 2));
-        const idx = Math.floor(((Math.PI * 1.5 - normalizedRot) % (Math.PI * 2) + (Math.PI * 2)) % (Math.PI * 2) / section) % rNums.length;
-        const resNum = rNums[idx], resCol = rColors[idx];
-        document.getElementById('r_res').innerText = resNum;
-        document.getElementById('r_res').style.color = resCol;
-
-        let win = false; let b = +document.getElementById('roulette_bet').value;
-        if(rType === 'red' && resCol === '#ff1744') win = true;
-        else if(rType === 'black' && resCol === '#1a1a1a') win = true;
-        else if(rType === 'even' && resNum !== 0 && resNum % 2 === 0) win = true;
-        else if(rType === 'odd' && resNum % 2 !== 0) win = true;
-        else if(rType === 'number' && resNum === +document.getElementById('roulette_num').value) { bal += b * 36; win = true; }
-
-        if(win && rType !== 'number') bal += b * 2;
-        if(win) { winCount++; } else { winCount = 0; }
-        lastBet = b; updBal();
-    }
+    function setRType(t) { if(isSpinning) return; rType = t; document.querySelectorAll('#roulette .opt').forEach(o => o.classList.remove('selected')); document.getElementById('rb_'+t).classList.add('selected'); document.getElementById('r_status').innerText = "СТАВКА: " + t.toUpperCase(); }
+    function drawRoulette() { const ctx = document.getElementById('r_can').getContext('2d'); const cx = 110, cy = 110, rad = 100; ctx.clearRect(0,0,220,220); rNums.forEach((n, i) => { const ang = (Math.PI * 2) / rNums.length; ctx.beginPath(); ctx.fillStyle = rColors[i]; ctx.moveTo(cx, cy); ctx.arc(cx, cy, rad, i * ang + rRotation, (i + 1) * ang + rRotation); ctx.fill(); ctx.save(); ctx.translate(cx, cy); ctx.rotate(i * ang + ang/2 + rRotation); ctx.fillStyle = "#fff"; ctx.font = "bold 8px Arial"; ctx.fillText(n, rad - 15, 5); ctx.restore(); }); }
+    function playRoulette() { if(isSpinning || !rType) return; let b = +document.getElementById('roulette_bet').value; if(b > bal || b <= 0) return; isSpinning = true; bal -= b; updBal(); document.getElementById('r_btn').disabled = true; document.querySelectorAll('#r_ui input, #r_ui button').forEach(el => el.style.pointerEvents = 'none'); let extraSpins = 6 + Math.random() * 5; let duration = 4000; let start = null; let startRot = rRotation; function anim(now) { if(!start) start = now; let prog = (now - start) / duration; if(prog < 1) { rRotation = startRot + (extraSpins * Math.PI * 2) * (1 - Math.pow(1 - prog, 4)); drawRoulette(); requestAnimationFrame(anim); } else { isSpinning = false; document.getElementById('r_btn').disabled = false; document.querySelectorAll('#r_ui input, #r_ui button').forEach(el => el.style.pointerEvents = 'auto'); finalizeRoulette(); } } requestAnimationFrame(anim); }
+    function finalizeRoulette() { const section = (Math.PI * 2) / rNums.length; const normalizedRot = (rRotation % (Math.PI * 2)); const idx = Math.floor(((Math.PI * 1.5 - normalizedRot) % (Math.PI * 2) + (Math.PI * 2)) % (Math.PI * 2) / section) % rNums.length; const resNum = rNums[idx], resCol = rColors[idx]; document.getElementById('r_res').innerText = resNum; document.getElementById('r_res').style.color = resCol; let win = false; let b = +document.getElementById('roulette_bet').value; if(rType === 'red' && resCol === '#ff1744') win = true; else if(rType === 'black' && resCol === '#1a1a1a') win = true; else if(rType === 'even' && resNum !== 0 && resNum % 2 === 0) win = true; else if(rType === 'odd' && resNum % 2 !== 0) win = true; else if(rType === 'number' && resNum === +document.getElementById('roulette_num').value) { bal += b * 36; win = true; } if(win && rType !== 'number') bal += b * 2; updBal(); }
 
     // TOWER
     let tL=0, tA=false, tM=1;
     function setTM(n){ if(!tA){ tM=n; document.querySelectorAll('#tower .opt').forEach(b=>b.classList.remove('selected')); document.getElementById('tm'+n).classList.add('selected'); }}
     function resetTower() { tL=0; tA=false; document.getElementById('t_start').style.display='block'; document.getElementById('t_cash').style.display='none'; const g=document.getElementById('t_grid'); g.innerHTML=''; for(let i=0; i<8; i++){ let r=document.createElement('div'); r.className='t-row'; r.id='tr'+i; for(let j=0; j<4; j++){ let c=document.createElement('div'); c.className='tile'; c.onclick=()=>stepTower(i,j); r.appendChild(c); } g.appendChild(r); } }
-    function startTower(){ let b = +document.getElementById('tower_bet').value; if(b > bal || b <= 0) return; bal -= b; updBal(); tA = true; document.getElementById('tr0').classList.add('on'); document.getElementById('t_start').style.display='none'; document.getElementById('t_cash').style.display='block'; document.getElementById('t_profit').innerText = '0.00 ₽'; }
-    function stepTower(r, c) { if(!tA || r !== tL) return; let bet = +document.getElementById('tower_bet').value; let fChance = (tM * 0.25) + (tL * 0.1); if(Math.random() > fChance) { let el = document.getElementById('tr'+r).children[c]; el.style.background = 'var(--win)'; el.innerHTML = '💎'; tL++; let curWin = bet * Math.pow(1.1 + (tM*0.1), tL); document.getElementById('t_profit').innerText = curWin.toFixed(2) + ' ₽'; if(tL < 8) document.getElementById('tr'+tL).classList.add('on'); } else { document.getElementById('tr'+r).children[c].style.background = 'var(--loss)'; document.getElementById('tr'+r).children[c].innerHTML = '💣'; tA = false; document.getElementById('t_cash').style.display='none'; setTimeout(resetTower, 1000); } }
+    function startTower(){ let b = +document.getElementById('tower_bet').value; if(b > bal || b <= 0) return; bal -= b; updBal(); tA = true; document.getElementById('tr0').classList.add('on'); document.getElementById('t_start').style.display='none'; document.getElementById('t_cash').style.display='block'; document.getElementById('t_profit').innerText = '0.00'; }
+    function stepTower(r, c) { if(!tA || r !== tL) return; let bet = +document.getElementById('tower_bet').value; let fChance = (tM * 0.25) + (tL * 0.1); if(Math.random() > fChance) { let el = document.getElementById('tr'+r).children[c]; el.style.background = 'var(--win)'; el.innerHTML = '💎'; tL++; let mult = Math.pow(1.2 + (tM*0.1), tL); document.getElementById('t_profit').innerText = (bet * mult).toFixed(2); if(tL < 8) document.getElementById('tr'+tL).classList.add('on'); } else { document.getElementById('tr'+r).children[c].style.background = 'var(--loss)'; document.getElementById('tr'+r).children[c].innerHTML = '💣'; tA = false; document.getElementById('t_cash').style.display='none'; setTimeout(resetTower, 1000); } }
     function cashTower() { if(!tA) return; bal += parseFloat(document.getElementById('t_profit').innerText); updBal(); resetTower(); }
 
     // MINES
     let mA=false, mG=[];
-    function resetMines() { mA=false; const g=document.getElementById('m_grid'); g.innerHTML=''; for(let i=0; i<25; i++){ let b=document.createElement('div'); b.className='m-box'; b.onclick=()=>stepMines(i); g.appendChild(b); } document.getElementById('m_start').style.display='block'; document.getElementById('m_cash').style.display='none'; }
-    function startMines() { let b = +document.getElementById('mines_bet').value, c = +document.getElementById('mines_cnt').value; if(b > bal || b <= 0) return; bal -= b; updBal(); mA=true; mG=[]; let p=Array(25).fill(0); let count=0; while(count<c){ let r=Math.floor(Math.random()*25); if(p[r]===0){p[r]=1;count++;}} mG=p; document.getElementById('m_start').style.display='none'; document.getElementById('m_cash').style.display='block'; document.getElementById('m_profit').innerText='0.00 ₽'; }
-    function stepMines(i) { if(!mA) return; let el=document.getElementById('m_grid').children[i]; if(el.innerHTML!=='') return; if(mG[i]===1){ el.style.background='var(--loss)'; el.innerHTML='💣'; mA=false; setTimeout(resetMines, 1000); } else { el.style.background='var(--win)'; el.innerHTML='💎'; let opened=0; Array.from(document.getElementById('m_grid').children).forEach(x=>{if(x.innerHTML==='💎')opened++;}); let b=+document.getElementById('mines_bet').value, c=+document.getElementById('mines_cnt').value; let mult = 1 + (c/(25-opened)); document.getElementById('m_profit').innerText=(b*mult*opened*0.2).toFixed(2); } }
+    function resetMines() { mA=false; const g=document.getElementById('m_grid'); g.innerHTML=''; for(let i=0; i<25; i++){ let b=document.createElement('div'); b.className='m-box'; b.onclick=()=>stepMines(i); g.appendChild(b); } document.getElementById('m_start').style.display='block'; document.getElementById('m_cash').style.display='none'; document.querySelectorAll('#m_ui input').forEach(el => el.style.pointerEvents = 'auto'); }
+    function startMines() { let b = +document.getElementById('mines_bet').value, c = +document.getElementById('mines_cnt').value; if(b > bal || b <= 0 || c < 1 || c > 24) return; bal -= b; updBal(); mA=true; mG=Array(25).fill(0); let count=0; while(count<c){ let r=Math.floor(Math.random()*25); if(mG[r]===0){mG[r]=1;count++;}} document.getElementById('m_start').style.display='none'; document.getElementById('m_cash').style.display='block'; document.getElementById('m_profit').innerText=b.toFixed(2); document.querySelectorAll('#m_ui input').forEach(el => el.style.pointerEvents = 'none'); }
+    function stepMines(i) { if(!mA) return; let el=document.getElementById('m_grid').children[i]; if(el.innerHTML!=='') return; if(mG[i]===1){ el.style.background='var(--loss)'; el.innerHTML='💣'; mA=false; setTimeout(resetMines, 1000); } else { el.style.background='var(--win)'; el.innerHTML='💎'; let opened=0; Array.from(document.getElementById('m_grid').children).forEach(x=>{if(x.innerHTML==='💎')opened++;}); let b=+document.getElementById('mines_bet').value, c=+document.getElementById('mines_cnt').value; let mult = 1 / ((25 - opened - c + 1) / (25 - opened)); let currentVal = parseFloat(document.getElementById('m_profit').innerText); document.getElementById('m_profit').innerText = (currentVal * mult).toFixed(2); } }
     function cashMines() { if(!mA) return; bal += parseFloat(document.getElementById('m_profit').innerText); updBal(); resetMines(); }
+    function playLimbo() { let b=+document.getElementById('limbo_bet').value, t=+document.getElementById('limbo_target').value; if(b>bal||b<=0) return; bal-=b; let r=1 + (Math.random() * 5); document.getElementById('limbo_res_text').innerText=r.toFixed(2)+'x'; if(r>=t){ bal+=b*t; document.getElementById('limbo_res_text').style.color='var(--win)'; } else { document.getElementById('limbo_res_text').style.color='var(--loss)'; } updBal(); }
 
-    // LIMBO
-    function playLimbo() { let b=+document.getElementById('limbo_bet').value, t=+document.getElementById('limbo_target').value; if(b>bal||b<=0) return; bal-=b; let r=1+Math.random()*10; if(Math.random()<0.1) r=1.0; document.getElementById('limbo_res_text').innerText=r.toFixed(2)+'x'; if(r>=t){ bal+=b*t; document.getElementById('limbo_res_text').style.color='var(--win)'; } else { document.getElementById('limbo_res_text').style.color='var(--loss)'; } updBal(); }
+    // PLINKO
+    let pR = 8;
+    const pMults = {
+        8:  [5.6, 2.1, 1.1, 0.5, 0.2, 0.5, 1.1, 2.1, 5.6],
+        12: [10, 5, 2, 1.1, 0.5, 0.2, 0.2, 0.5, 1.1, 2, 5, 10],
+        16: [15, 9, 5, 2, 1.2, 0.5, 0.3, 0.2, 0.2, 0.3, 0.5, 1.2, 2, 5, 9, 15]
+    };
+    let balls = [];
+    const pCan = document.getElementById('p_can');
+    const pCtx = pCan.getContext('2d');
 
-    // PLINKO (WITH BALLS AND UI LOCK)
-    let pR=8, pActive=false; 
-    function setPR(n){ if(pActive) return; pR=n; document.querySelectorAll('#plinko .opt').forEach(b=>b.classList.remove('selected')); document.getElementById('pr'+n).classList.add('selected'); initPlinko(); }
-    function initPlinko() { const c=document.getElementById('p_can'), ctx=c.getContext('2d'); ctx.clearRect(0,0,320,280); ctx.fillStyle='#333'; for(let i=0; i<pR; i++) { for(let j=0; j<=i; j++) { ctx.beginPath(); ctx.arc(160 - (i*10) + (j*20), 20 + (i*25), 3, 0, Math.PI*2); ctx.fill(); } } let m=document.getElementById('p_mults'); m.innerHTML=''; for(let i=0; i<=pR; i++) { let d=document.createElement('div'); d.className='pm'; d.innerText=(1.2+(Math.abs(pR/2-i)*0.5)).toFixed(1); m.appendChild(d); } }
-    
+    function setPR(n) { if(pActiveBalls > 0) return; pR = n; document.querySelectorAll('#p_rows_selector .opt').forEach(b => b.classList.remove('selected')); document.getElementById('pr'+n).classList.add('selected'); initPlinko(); }
+    function initPlinko() { pCtx.clearRect(0,0,340,320); drawPGrid(); drawPMults(); }
+    function drawPGrid() { pCtx.fillStyle = '#555'; const sx = 32, sy = 28, sy0 = 30; for(let i=0; i<pR; i++) { let rx = 170 - (i * sx / 2); for(let j=0; j<=i; j++) { pCtx.beginPath(); pCtx.arc(rx + (j * sx), sy0 + (i * sy), 3.5, 0, Math.PI*2); pCtx.fill(); } } }
+    function drawPMults() { let m = document.getElementById('p_mults'); m.innerHTML = ''; pMults[pR].forEach(v => { let d = document.createElement('div'); d.className = 'pm'; d.innerText = v; if(v >= 1) d.style.background = '#00e676'; m.appendChild(d); }); }
+
     function playPlinko() {
-        if(pActive) return;
-        let b=+document.getElementById('plinko_bet').value;
-        if(b>bal||b<=0) return;
-        
-        pActive = true;
-        bal-=b; updBal();
-        document.getElementById('p_btn').disabled = true;
-        document.querySelectorAll('#p_ui input, #p_ui button').forEach(el => el.style.pointerEvents = 'none');
+        let b = +document.getElementById('plinko_bet').value;
+        if(b > bal || b <= 0) return;
+        bal -= b; updBal(); pActiveBalls++;
+        document.getElementById('p_rows_selector').style.opacity = '0.3';
+        document.getElementById('p_rows_selector').style.pointerEvents = 'none';
 
-        const c=document.getElementById('p_can'), ctx=c.getContext('2d');
-        let x = 160, y = 10, row = 0, col = 0;
-        
-        function drawBall() {
-            initPlinko();
-            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
-            if(row < pR) {
-                y += 2.5; 
-                if(y >= 20 + (row*25)) {
-                    let dir = Math.random() > 0.5 ? 1 : -1;
-                    col += (dir > 0 ? 1 : 0);
-                    x += dir * 10;
-                    row++;
-                }
-                requestAnimationFrame(drawBall);
-            } else {
-                pActive = false;
-                document.getElementById('p_btn').disabled = false;
-                document.querySelectorAll('#p_ui input, #p_ui button').forEach(el => el.style.pointerEvents = 'auto');
-                let finalIdx = Math.min(col, pR);
-                let mult = 1.2 + (Math.abs(pR/2 - finalIdx) * 0.5);
-                bal += b * mult; updBal();
-            }
-        }
-        drawBall();
+        balls.push({ x: 170, y: 10, row: 0, col: 0, bet: b, targetX: 170, targetY: 10 });
+        if(balls.length === 1) animatePlinko();
     }
 
-    particlesJS("particles-js", { "particles": { "number": { "value": 40 }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.1 }, "size": { "value": 2 }, "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.05, "width": 1 }, "move": { "enable": true, "speed": 1 } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false } } }, "retina_detect": true });
+    function animatePlinko() {
+        if(balls.length === 0) return;
+        pCtx.clearRect(0,0,340,320);
+        drawPGrid();
+        const sx = 32, sy = 28, sy0 = 30;
+
+        for(let i = balls.length - 1; i >= 0; i--) {
+            let ball = balls[i];
+            if(ball.y < ball.targetY) {
+                ball.y += 2.5; ball.x += (ball.targetX - ball.x) * 0.15;
+            } else {
+                if(ball.row < pR) {
+                    let dir = Math.random() > 0.5 ? 1 : -1;
+                    ball.col += (dir > 0 ? 1 : 0);
+                    ball.targetX = (170 - (ball.row+1) * sx / 2) + (ball.col * sx);
+                    ball.targetY = sy0 + (ball.row + 1) * sy;
+                    ball.row++;
+                } else {
+                    finishBall(ball); balls.splice(i, 1); continue;
+                }
+            }
+            pCtx.fillStyle = '#ff1744'; pCtx.beginPath(); pCtx.arc(ball.x, ball.y, 6, 0, Math.PI*2); pCtx.fill();
+            pCtx.strokeStyle = '#fff'; pCtx.lineWidth = 2; pCtx.stroke();
+        }
+        requestAnimationFrame(animatePlinko);
+    }
+
+    function finishBall(b) {
+        pActiveBalls--;
+        if(pActiveBalls <= 0) { 
+            pActiveBalls = 0; 
+            document.getElementById('p_rows_selector').style.opacity = '1';
+            document.getElementById('p_rows_selector').style.pointerEvents = 'auto';
+        }
+        let idx = Math.max(0, Math.min(b.col, pMults[pR].length - 1));
+        let mult = pMults[pR][idx];
+        let el = document.querySelectorAll('.pm')[idx];
+        if(el) { el.style.transform = 'scale(1.3)'; setTimeout(() => el.style.transform = 'scale(1)', 200); }
+        bal += b.bet * mult; updBal();
+    }
+
+    particlesJS("particles-js", { "particles": { "number": { "value": 30 }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.1 }, "size": { "value": 2 }, "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.05, "width": 1 }, "move": { "enable": true, "speed": 1 } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false } } }, "retina_detect": true });
     updBal();
 </script>
 </body>
